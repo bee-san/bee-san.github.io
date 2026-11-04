@@ -1,5 +1,7 @@
 # bee-san.github.io
 
+[![Discord](https://img.shields.io/discord/754001738184392704?logo=discord&label=Discord)](https://discord.skerritt.blog)
+
 A home page that lists every one of my GitHub Pages sites as a grid of tiles, A to Z, so I can find them.
 
 Live at <https://bee-san.github.io/>.
