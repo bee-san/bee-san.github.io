@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bee's sites</title>
+  <meta name="description" content="Every GitHub Pages site bee-san has published, in one grid.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 28.1 9v14L16 30 3.9 23V9z' fill='%23f2a900'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      color-scheme: light dark;
+      --bg: #fbf8f1;
+      --ink: #1e1b16;
+      --muted: #5c564b;
+      --line: #e5ddcf;
+      --accent: #b86e00;
+      --chip: rgb(30 27 22 / 0.06);
+      --chip-hover: rgb(30 27 22 / 0.12);
+      --chip-line: rgb(30 27 22 / 0.16);
+      --tile-l: 96.5%; --tile-c: 0.03;
+      --edge-l: 87%;   --edge-c: 0.05;
+      --edge-hi-l: 70%; --edge-hi-c: 0.1;
+      --shadow: 0 12px 24px -16px rgb(70 45 10 / 0.45);
+      --radius: 18px;
+      --display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #12110d;
+        --ink: #f4f0e7;
+        --muted: #b3ab9a;
+        --line: #2d2a23;
+        --accent: #f5b83d;
+        --chip: rgb(255 255 255 / 0.07);
+        --chip-hover: rgb(255 255 255 / 0.14);
+        --chip-line: rgb(255 255 255 / 0.18);
+        --tile-l: 24%;   --tile-c: 0.03;
+        --edge-l: 33%;   --edge-c: 0.045;
+        --edge-hi-l: 55%; --edge-hi-c: 0.09;
+        --shadow: 0 14px 28px -16px rgb(0 0 0 / 0.8);
+      }
+    }
+
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 400 1rem/1.5 var(--body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 40px 16px 48px; }
+
+    header { margin-bottom: 28px; }
+
+    .eyebrow {
+      display: flex; align-items: center; gap: 8px;
+      margin: 0 0 12px;
+      font: 600 0.8125rem/1 var(--mono);
+      color: var(--muted);
+    }
+    .eyebrow svg { color: var(--accent); flex: none; }
+
+    h1 {
+      margin: 0;
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: clamp(2.5rem, 1.75rem + 3.5vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: -0.035em;
+    }
+
+    .lede {
+      margin: 14px 0 0;
+      max-width: 36rem;
+      font-size: 1.0625rem;
+      color: var(--muted);
+      text-wrap: pretty;
+    }
+
+    .meta {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px;
+      margin: 18px 0 0;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+    #count { font-weight: 650; color: var(--ink); }
+    #status { padding-left: 12px; border-left: 1px solid var(--line); }
+    #status:empty { display: none; }
+
+    .grid {
+      list-style: none; margin: 0; padding: 0;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+    }
+
+    .tile {
+      position: relative;
+      aspect-ratio: 1;
+      container-type: inline-size;
+      border-radius: var(--radius);
+      background: oklch(var(--tile-l) var(--tile-c) var(--h, 60));
+      border: 1px solid oklch(var(--edge-l) var(--edge-c) var(--h, 60));
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .tile:hover, .tile:focus-within {
+      border-color: oklch(var(--edge-hi-l) var(--edge-hi-c) var(--h, 60));
+    }
+    .tile:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+    @supports not (color: oklch(0% 0 0)) {
+      .tile { background: var(--chip); border-color: var(--line); }
+      .tile:hover, .tile:focus-within { border-color: var(--muted); }
+    }
+
+    .tile-inner {
+      height: 100%;
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 13px;
+    }
+
+    .title {
+      margin: 0;
+      font: 700 1rem/1.15 var(--display);
+      letter-spacing: -0.015em;
+      overflow-wrap: anywhere;
+    }
+
+    /* Stretched link: the whole tile opens the site; .repo-link sits above it. */
+    .site-link { color: inherit; text-decoration: none; }
+    .site-link:focus-visible { outline: none; }
+    .site-link::after {
+      content: "";
+      position: absolute; inset: 0;
+      border-radius: var(--radius);
+    }
+    .site-link:focus-visible::after { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+    .desc {
+      margin: 0;
+      flex: 1 1 0; min-height: 0;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      font-size: 0.8125rem;
+      line-height: 1.4;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+    .desc.is-empty { font-style: italic; }
+    .desc.is-hidden { opacity: 0; }
+
+    .url {
+      display: none;
+      margin: 0;
+      font: 500 0.6875rem/1.3 var(--mono);
+      color: var(--muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+    .actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+    .repo-link {
+      position: relative; z-index: 1;
+      display: inline-flex; align-items: center; gap: 6px;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--chip-line);
+      color: var(--ink);
+      font-size: 0.8125rem; font-weight: 600; line-height: 1;
+      text-decoration: none;
+    }
+    .repo-link:hover { background: var(--chip-hover); }
+    .repo-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+    .gh { flex: none; }
+
+    .badge {
+      padding: 4px 7px;
+      border: 1px dashed var(--chip-line);
+      border-radius: 6px;
+      font: 600 0.625rem/1 var(--mono);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    @container (min-width: 190px) {
+      .tile-inner { padding: 18px; gap: 8px; }
+      .foot { gap: 10px; }
+      .title { font-size: clamp(1.125rem, 8.5cqi, 1.4rem); }
+      .desc { font-size: 0.875rem; }
+      .url { display: block; }
+    }
+
+    .page-foot {
+      margin-top: 40px; padding-top: 18px;
+      border-top: 1px solid var(--line);
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+    .page-foot p { margin: 0; }
+    .page-foot a {
+      color: var(--ink);
+      text-decoration-color: var(--accent);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 3px;
+    }
+    .page-foot a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; border-radius: 2px; }
+
+    .vh {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      margin: -1px; padding: 0; border: 0;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    @media (min-width: 640px) {
+      .wrap { padding: 64px 32px; }
+      .grid { gap: 18px; grid-template-columns: repeat(auto-fill, minmax(216px, 1fr)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tile { transition: none; }
+      .tile:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">
+        <svg viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M16 2 28.1 9v14L16 30 3.9 23V9z"/></svg>
+        bee-san.github.io
+      </p>
+      <h1>Bee's sites</h1>
+      <p class="lede">Everything I've put on GitHub Pages, A to Z. New sites show up here on their own.</p>
+      <p class="meta"><span id="count">11 sites</span><span id="status" role="status" aria-live="polite"></span></p>
+    </header>
+
+    <main>
+      <ul class="grid" id="sites" role="list">
+      <li class="tile" data-repo="bees-ultimate-grammar-dictionary" style="--h:283">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/bees-ultimate-grammar-dictionary/">bees-ultimate-grammar-dictionary</a></h2>
+          <p class="desc">Just one dict</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/bees-ultimate-grammar-dictionary</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/bees-ultimate-grammar-dictionary"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for bees-ultimate-grammar-dictionary</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="Books" style="--h:57">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/Books/">Books</a></h2>
+          <p class="desc">React app to show all the books I&#x27;ve read / want to read</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/Books</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/Books"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for Books</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="CyberFork" style="--h:190">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://cyberfork.skerritt.blog/">CyberFork</a></h2>
+          <p class="desc">The Cyber Swiss Army Knife - a web app for encryption, encoding, compression and data analysis</p>
+          <div class="foot">
+            <p class="url">cyberfork.skerritt.blog</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/CyberFork"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for CyberFork</span></a><span class="badge">fork</span>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="for-sale" style="--h:60">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/for-sale/">for-sale</a></h2>
+          <p class="desc">Bee&#x27;s London clear-out: tech, Japanese games, Digimon and coffee gear, with photos and estimated GBP prices</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/for-sale</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/for-sale"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for for-sale</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="gsm-wrapped" style="--h:90">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/gsm-wrapped/">gsm-wrapped</a></h2>
+          <p class="desc">Your Year in GameSentenceMiner: a Spotify Wrapped-style year in review built from your gsm.db, entirely in the browser</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/gsm-wrapped</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/gsm-wrapped"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for gsm-wrapped</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="ppsspp-web" style="--h:212">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/ppsspp-web/">ppsspp-web</a></h2>
+          <p class="desc is-empty">No description.</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/ppsspp-web</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/ppsspp-web"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for ppsspp-web</span></a><span class="badge">fork</span>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="Recipes" style="--h:348">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/Recipes/">Recipes</a></h2>
+          <p class="desc">A GitHub repo of my recipes</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/Recipes</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/Recipes"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for Recipes</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="RustScan" style="--h:310">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/RustScan/">RustScan</a></h2>
+          <p class="desc">🤖 The Modern Port Scanner 🤖</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/RustScan</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/RustScan"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for RustScan</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="themoeway-quiz-log" style="--h:75">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/themoeway-quiz-log/">themoeway-quiz-log</a></h2>
+          <p class="desc">Private-by-default weekly Japanese quiz tracker with local AnkiConnect and typed TMW decks</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/themoeway-quiz-log</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/themoeway-quiz-log"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for themoeway-quiz-log</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="TryRecipeMe" style="--h:146">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/TryRecipeMe/">TryRecipeMe</a></h2>
+          <p class="desc is-empty">No description.</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/TryRecipeMe</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/TryRecipeMe"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for TryRecipeMe</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="yomitan-export-to-zip" style="--h:125">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/yomitan-export-to-zip/">yomitan-export-to-zip</a></h2>
+          <p class="desc">Convert a Yomitan dictionary-collection export (yomitan-dictionaries-*.json) back into standalone Yomitan dictionary ZIPs, entirely in the browser</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/yomitan-export-to-zip</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/yomitan-export-to-zip"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for yomitan-export-to-zip</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      </ul>
+    </main>
+
+    <footer class="page-foot">
+      <p><a href="https://github.com/bee-san">github.com/bee-san</a> &middot; <a href="https://github.com/bee-san/bee-san.github.io">Source for this page</a></p>
+    </footer>
+  </div>
+
+  <template id="tile-template">
+    <li class="tile">
+      <div class="tile-inner">
+        <h2 class="title"><a class="site-link"></a></h2>
+        <p class="desc"></p>
+        <div class="foot">
+          <p class="url"></p>
+          <div class="actions">
+            <a class="repo-link"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"></span></a>
+          </div>
+        </div>
+      </div>
+    </li>
+  </template>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const USER = "bee-san";
+      const API_URL = "https://api.github.com/users/bee-san/repos?per_page=100";
+      const API_ORIGIN = "https://api.github.com/";
+
+      const grid = document.getElementById("sites");
+      const countEl = document.getElementById("count");
+      const statusEl = document.getElementById("status");
+      const template = document.getElementById("tile-template");
+
+      const key = (name) => name.toLowerCase();
+      const shown = new Set(Array.from(grid.children, (li) => key(li.dataset.repo)));
+      shown.add(key(USER + ".github.io"));
+
+      // FNV-1a over the lowercased name, so each site keeps the same tint on every visit.
+      function hueFor(name) {
+        const s = key(name);
+        let h = 0x811c9dc5;
+        for (let i = 0; i < s.length; i++) {
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 0x01000193);
+        }
+        return (h >>> 0) % 360;
+      }
+
+      function makeTile(repo) {
+        const name = repo.name;
+        const siteUrl = "https://" + USER + ".github.io/" + encodeURIComponent(name) + "/";
+        const li = template.content.firstElementChild.cloneNode(true);
+        li.dataset.repo = name;
+        li.style.setProperty("--h", String(hueFor(name)));
+
+        const site = li.querySelector(".site-link");
+        site.href = siteUrl;
+        site.textContent = name;
+
+        const desc = li.querySelector(".desc");
+        const text = typeof repo.description === "string" ? repo.description.trim() : "";
+        desc.textContent = text || "No description.";
+        if (!text) desc.classList.add("is-empty");
+
+        li.querySelector(".url").textContent = siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+        const repoLink = li.querySelector(".repo-link");
+        repoLink.href = "https://github.com/" + USER + "/" + encodeURIComponent(name);
+        repoLink.querySelector(".vh").textContent = " for " + name;
+
+        if (repo.fork) {
+          const badge = document.createElement("span");
+          badge.className = "badge";
+          badge.textContent = "fork";
+          li.querySelector(".actions").append(badge);
+        }
+        return li;
+      }
+
+      // Insert without moving existing tiles, so keyboard focus is never lost.
+      function insertSorted(li) {
+        const k = key(li.dataset.repo);
+        for (const other of grid.children) {
+          if (key(other.dataset.repo) > k) {
+            grid.insertBefore(li, other);
+            return;
+          }
+        }
+        grid.append(li);
+      }
+
+      function setCount() {
+        const n = grid.children.length;
+        countEl.textContent = n + (n === 1 ? " site" : " sites");
+      }
+
+      // Cap each description at the whole lines that fit its tile, ending in an ellipsis.
+      function fitDescriptions() {
+        const descs = Array.from(grid.querySelectorAll(".desc"));
+        for (const p of descs) p.style.maxHeight = "";
+        const fits = descs.map((p) => {
+          const style = getComputedStyle(p);
+          const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.4;
+          return { lineHeight, lines: Math.floor((p.clientHeight + 1) / lineHeight) };
+        });
+        descs.forEach((p, i) => {
+          const { lineHeight, lines } = fits[i];
+          p.style.setProperty("-webkit-line-clamp", String(Math.max(lines, 1)));
+          p.style.maxHeight = Math.max(lines, 1) * lineHeight + "px";
+          p.classList.toggle("is-hidden", lines < 1);
+        });
+      }
+
+      let fitQueued = false;
+      function queueFit() {
+        if (fitQueued) return;
+        fitQueued = true;
+        requestAnimationFrame(() => {
+          fitQueued = false;
+          fitDescriptions();
+        });
+      }
+
+      function nextLink(header) {
+        if (!header) return null;
+        for (const part of header.split(",")) {
+          const m = /<([^>]+)>\s*;\s*rel="?next"?/.exec(part);
+          if (m && m[1].startsWith(API_ORIGIN)) return m[1];
+        }
+        return null;
+      }
+
+      async function fetchAllRepos() {
+        const repos = [];
+        let url = API_URL;
+        for (let page = 0; url && page < 30; page++) {
+          const signal = typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(10000) : undefined;
+          const res = await fetch(url, { signal });
+          if (!res.ok) {
+            const limited = res.status === 429 ||
+              (res.status === 403 && res.headers.get("x-ratelimit-remaining") === "0");
+            throw new Error(limited ? "rate-limited" : "HTTP " + res.status);
+          }
+          const batch = await res.json();
+          if (!Array.isArray(batch)) throw new Error("unexpected response");
+          repos.push(...batch);
+          url = nextLink(res.headers.get("link"));
+        }
+        return repos;
+      }
+
+      async function addNewSites() {
+        statusEl.textContent = "Checking GitHub for new sites…";
+        try {
+          const repos = await fetchAllRepos();
+          const fresh = repos.filter((r) =>
+            r && typeof r.name === "string" && r.has_pages && !r.archived && !shown.has(key(r.name)));
+          for (const repo of fresh) {
+            shown.add(key(repo.name));
+            insertSorted(makeTile(repo));
+          }
+          setCount();
+          if (fresh.length) queueFit();
+          statusEl.textContent = fresh.length
+            ? "Found " + fresh.length + " more on GitHub."
+            : "Up to date with GitHub.";
+        } catch (err) {
+          console.warn("Could not refresh the site list from GitHub:", err);
+          statusEl.textContent = err && err.message === "rate-limited"
+            ? "GitHub rate limit hit, showing the saved list."
+            : "Couldn't reach GitHub, showing the saved list.";
+        }
+      }
+
+      fitDescriptions();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(queueFit);
+      if ("ResizeObserver" in window) new ResizeObserver(queueFit).observe(grid);
+      else window.addEventListener("resize", queueFit);
+
+      addNewSites();
+    })();
+  </script>
+</body>
+</html>
