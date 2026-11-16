@@ -10,6 +10,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+  <script>
+    try {
+      const t = localStorage.getItem("bee-theme");
+      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -34,7 +40,7 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root:not([data-theme="light"]) {
         --bg: #12110d;
         --ink: #f4f0e7;
         --muted: #b3ab9a;
@@ -48,6 +54,22 @@
         --edge-hi-l: 55%; --edge-hi-c: 0.09;
         --shadow: 0 14px 28px -16px rgb(0 0 0 / 0.8);
       }
+    }
+    :root[data-theme="light"] { color-scheme: light; }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #12110d;
+      --ink: #f4f0e7;
+      --muted: #b3ab9a;
+      --line: #2d2a23;
+      --accent: #f5b83d;
+      --chip: rgb(255 255 255 / 0.07);
+      --chip-hover: rgb(255 255 255 / 0.14);
+      --chip-line: rgb(255 255 255 / 0.18);
+      --tile-l: 24%;   --tile-c: 0.03;
+      --edge-l: 33%;   --edge-c: 0.045;
+      --edge-hi-l: 55%; --edge-hi-c: 0.09;
+      --shadow: 0 14px 28px -16px rgb(0 0 0 / 0.8);
     }
 
     html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
@@ -98,6 +120,68 @@
     #count { font-weight: 650; color: var(--ink); }
     #status { padding-left: 12px; border-left: 1px solid var(--line); }
     #status:empty { display: none; }
+
+    .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+
+    .theme-btn {
+      flex: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 44px; min-width: 44px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--chip-line);
+      color: var(--ink);
+      font: 600 0.875rem/1 var(--body);
+      cursor: pointer;
+    }
+    .theme-btn:hover { background: var(--chip-hover); }
+    .theme-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+    .theme-btn svg { flex: none; }
+    .theme-btn .when-dark { display: none; }
+    :root[data-theme="dark"] .theme-btn .when-dark { display: inline; }
+    :root[data-theme="dark"] .theme-btn .when-light { display: none; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .theme-btn .when-dark { display: inline; }
+      :root:not([data-theme="light"]) .theme-btn .when-light { display: none; }
+    }
+
+    .search {
+      position: relative;
+      margin: 22px 0 0;
+      max-width: 36rem;
+    }
+    .search svg {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none;
+    }
+    .search input {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 44px 10px 42px;
+      border-radius: 999px;
+      border: 1px solid var(--chip-line);
+      background: var(--chip);
+      color: var(--ink);
+      font: 500 1rem/1.2 var(--body);
+      -webkit-appearance: none; appearance: none;
+    }
+    .search input::placeholder { color: var(--muted); }
+    .search input::-webkit-search-cancel-button { display: none; }
+    .search input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .search kbd {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      padding: 3px 7px;
+      border: 1px solid var(--chip-line); border-radius: 6px;
+      font: 600 0.75rem/1 var(--mono); color: var(--muted);
+      pointer-events: none;
+    }
+    .search input:focus ~ kbd, .search input:not(:placeholder-shown) ~ kbd { display: none; }
+    @media (hover: none) { .search kbd { display: none; } }
+
+    .no-results { margin: 8px 0 0; color: var(--muted); }
+    .no-results[hidden] { display: none; }
+    .tile[hidden] { display: none; }
 
     .grid {
       list-style: none; margin: 0; padding: 0;
@@ -244,13 +328,26 @@
 <body>
   <div class="wrap">
     <header>
-      <p class="eyebrow">
-        <svg viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M16 2 28.1 9v14L16 30 3.9 23V9z"/></svg>
-        bee-san.github.io
-      </p>
+      <div class="top">
+        <p class="eyebrow">
+          <svg viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M16 2 28.1 9v14L16 30 3.9 23V9z"/></svg>
+          bee-san.github.io
+        </p>
+        <button type="button" class="theme-btn" id="theme-btn" aria-label="Switch to dark theme">
+          <svg class="when-light" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.7 14.6A8.5 8.5 0 0 1 9.4 3.3a.6.6 0 0 0-.8-.7A9.7 9.7 0 1 0 21.4 15.4a.6.6 0 0 0-.7-.8z"/></svg>
+          <svg class="when-dark" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></g></svg>
+          <span class="when-light">Dark</span><span class="when-dark">Light</span>
+        </button>
+      </div>
       <h1>Bee's sites</h1>
       <p class="lede">Everything I've put on GitHub Pages, A to Z. New sites show up here on their own.</p>
-      <p class="meta"><span id="count">11 sites</span><span id="status" role="status" aria-live="polite"></span></p>
+      <form class="search" role="search" onsubmit="return false">
+        <label for="q" class="vh">Search my sites</label>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></g></svg>
+        <input type="search" id="q" placeholder="Search my sites" autocomplete="off" spellcheck="false" enterkeyhint="search">
+        <kbd aria-hidden="true">/</kbd>
+      </form>
+      <p class="meta"><span id="count">13 sites</span><span id="status" role="status" aria-live="polite"></span></p>
     </header>
 
     <main>
@@ -275,6 +372,18 @@
             <p class="url">bee-san.github.io/Books</p>
             <div class="actions">
               <a class="repo-link" href="https://github.com/bee-san/Books"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo<span class="vh"> for Books</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="tile" data-repo="crochet" style="--h:200">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/crochet/">Crochet Round Tracker</a></h2>
+          <p class="desc">Paste an amigurumi pattern and work through it stitch by stitch on a wheel. Never lose count on an increase again.</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/crochet</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/bee-san.github.io/tree/main/crochet"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Code<span class="vh"> for Crochet Round Tracker</span></a>
             </div>
           </div>
         </div>
@@ -363,6 +472,18 @@
           </div>
         </div>
       </li>
+      <li class="tile" data-repo="transcribe" style="--h:20">
+        <div class="tile-inner">
+          <h2 class="title"><a class="site-link" href="https://bee-san.github.io/transcribe/">Video Transcriber</a></h2>
+          <p class="desc">Drop in a video or audio file and get a transcript, with subtitles, made entirely in your browser.</p>
+          <div class="foot">
+            <p class="url">bee-san.github.io/transcribe</p>
+            <div class="actions">
+              <a class="repo-link" href="https://github.com/bee-san/bee-san.github.io/tree/main/transcribe"><svg class="gh" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Code<span class="vh"> for Video Transcriber</span></a>
+            </div>
+          </div>
+        </div>
+      </li>
       <li class="tile" data-repo="TryRecipeMe" style="--h:146">
         <div class="tile-inner">
           <h2 class="title"><a class="site-link" href="https://bee-san.github.io/TryRecipeMe/">TryRecipeMe</a></h2>
@@ -388,6 +509,7 @@
         </div>
       </li>
       </ul>
+      <p class="no-results" id="no-results" hidden>No sites match that search.</p>
     </main>
 
     <footer class="page-foot">
@@ -551,7 +673,7 @@
             shown.add(key(repo.name));
             insertSorted(makeTile(repo));
           }
-          setCount();
+          if (q.value.trim()) applySearch(); else setCount();
           if (fresh.length) queueFit();
           statusEl.textContent = fresh.length
             ? "Found " + fresh.length + " more on GitHub."
@@ -563,6 +685,63 @@
             : "Couldn't reach GitHub, showing the saved list.";
         }
       }
+
+      // Light / dark toggle, shared with the sub-pages through the "bee-theme" key.
+      const root = document.documentElement;
+      const themeBtn = document.getElementById("theme-btn");
+      const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : darkQuery.matches;
+      function labelTheme() {
+        themeBtn.setAttribute("aria-label", isDark() ? "Switch to light theme" : "Switch to dark theme");
+      }
+      themeBtn.addEventListener("click", () => {
+        const next = isDark() ? "light" : "dark";
+        root.dataset.theme = next;
+        try { localStorage.setItem("bee-theme", next); } catch (e) {}
+        labelTheme();
+      });
+      darkQuery.addEventListener?.("change", labelTheme);
+      labelTheme();
+
+      // Search: filter tiles by name, description and address as you type.
+      const q = document.getElementById("q");
+      const noResults = document.getElementById("no-results");
+      const fold = (t) => t.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[-_.]+/g, " ");
+      function applySearch() {
+        const words = fold(q.value).split(/\s+/).filter(Boolean);
+        let visible = 0;
+        for (const li of grid.children) {
+          const hay = fold([li.dataset.repo, li.querySelector(".title")?.textContent,
+            li.querySelector(".desc")?.textContent, li.querySelector(".url")?.textContent].join(" "));
+          const match = words.every((w) => hay.includes(w));
+          li.hidden = !match;
+          if (match) visible++;
+        }
+        noResults.hidden = visible > 0;
+        if (words.length) {
+          const n = grid.children.length;
+          countEl.textContent = visible + " of " + n + (n === 1 ? " site" : " sites");
+        } else {
+          setCount();
+        }
+        queueFit();
+      }
+      q.addEventListener("input", applySearch);
+      q.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") { q.value = ""; applySearch(); }
+        if (e.key === "Enter") {
+          const first = Array.from(grid.children).find((li) => !li.hidden);
+          if (first) first.querySelector(".site-link").click();
+        }
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+        const t = e.target;
+        if (t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+        e.preventDefault();
+        q.focus();
+      });
+      if (q.value) applySearch();
 
       fitDescriptions();
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(queueFit);

@@ -1,0 +1,22 @@
+name: Crochet tracker tests
+
+on:
+  push:
+    paths: ["crochet/**", ".github/workflows/crochet-tests.yml"]
+  pull_request:
+    paths: ["crochet/**", ".github/workflows/crochet-tests.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run node --test
+        working-directory: crochet
+        run: node --test
