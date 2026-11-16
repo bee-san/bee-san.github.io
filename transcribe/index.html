@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Video Transcriber</title>
+  <meta name="description" content="Drop a video or audio file and get a transcript, made entirely in your browser with Whisper.">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    try {
+      var t = localStorage.getItem("bee-theme");
+      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 28.1 9v14L16 30 3.9 23V9z' fill='%23f2a900'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="topbar">
+        <a class="back" href="../">&larr; All sites</a>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">
+          <svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.7 14.3A8.5 8.5 0 0 1 9.7 3.3a.6.6 0 0 0-.8-.7A9.5 9.5 0 1 0 21.4 15.1a.6.6 0 0 0-.7-.8Z"/></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M4.8 4.8l1.7 1.7M17.5 17.5l1.7 1.7M4.8 19.2l1.7-1.7M17.5 6.5l1.7-1.7"/></svg>
+          <span class="theme-label">Theme</span>
+        </button>
+      </div>
+      <p class="eyebrow">
+        <svg viewBox="0 0 32 32" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M16 2 28.1 9v14L16 30 3.9 23V9z"/></svg>
+        bee-san.github.io / transcribe
+      </p>
+      <h1>Video Transcriber</h1>
+      <p class="lede">Drop in a video or audio file and get a transcript with timestamps. Speech recognition runs right here in your browser using OpenAI's Whisper.</p>
+      <p class="privacy">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.8-4.8 1.4 1.4-6.2 6.2Z"/></svg>
+        <span>Your file never leaves this device. The only downloads are the speech model and its code.</span>
+      </p>
+    </header>
+
+    <main>
+      <section class="card drop" id="drop" aria-labelledby="drop-title">
+        <svg class="drop-icon" viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5"/></svg>
+        <h2 id="drop-title" class="drop-title">Drop a video or audio file</h2>
+        <p class="drop-sub">Anywhere on this page works. MP4, MOV, WebM, MP3, M4A, WAV and more.</p>
+        <label class="btn btn-primary" for="file">
+          Choose file
+        </label>
+        <input type="file" id="file" class="vh" accept="video/*,audio/*">
+      </section>
+
+      <section class="card status" id="status-card" hidden>
+        <div class="file-row">
+          <div class="file-meta">
+            <p class="file-name" id="file-name"></p>
+            <p class="file-sub" id="file-sub"></p>
+          </div>
+          <button type="button" class="btn btn-ghost" id="cancel" hidden>Cancel</button>
+        </div>
+        <div id="status" class="status-text" role="status" aria-live="polite"></div>
+        <div class="bar" id="bar" hidden><div class="bar-fill" id="bar-fill"></div></div>
+        <p class="error" id="error" role="alert" hidden></p>
+      </section>
+
+      <section class="card result" id="result" hidden aria-labelledby="result-title">
+        <div class="result-head">
+          <h2 id="result-title" class="h3">Transcript</h2>
+          <div class="tabs" role="tablist" aria-label="Transcript view">
+            <button type="button" role="tab" id="tab-plain" aria-selected="true" aria-controls="out-plain">Plain text</button>
+            <button type="button" role="tab" id="tab-times" aria-selected="false" aria-controls="out-times" tabindex="-1">Timestamps</button>
+          </div>
+        </div>
+        <div id="out-plain" role="tabpanel" aria-labelledby="tab-plain" class="out" tabindex="0"></div>
+        <div id="out-times" role="tabpanel" aria-labelledby="tab-times" class="out out-times" tabindex="0" hidden></div>
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="copy">Copy text</button>
+          <button type="button" class="btn" id="dl-txt">Download .txt</button>
+          <button type="button" class="btn" id="dl-srt">Download .srt</button>
+          <button type="button" class="btn" id="dl-vtt">Download .vtt</button>
+        </div>
+      </section>
+      <section class="card options" aria-label="Options">
+        <div class="field">
+          <label for="model">Model</label>
+          <select id="model">
+            <option value="onnx-community/whisper-tiny" selected>Tiny &middot; fastest (~40&nbsp;MB)</option>
+            <option value="onnx-community/whisper-base">Base &middot; better (~80&nbsp;MB)</option>
+            <option value="onnx-community/whisper-small">Small &middot; best, slow (~250&nbsp;MB)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="language">Spoken language</label>
+          <select id="language">
+            <option value="" selected>Detect automatically</option>
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="pt">Portuguese</option>
+            <option value="nl">Dutch</option>
+            <option value="ru">Russian</option>
+            <option value="uk">Ukrainian</option>
+            <option value="pl">Polish</option>
+            <option value="tr">Turkish</option>
+            <option value="ar">Arabic</option>
+            <option value="hi">Hindi</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="zh">Chinese</option>
+            <option value="vi">Vietnamese</option>
+            <option value="id">Indonesian</option>
+          </select>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="translate">
+          <span>Translate to English</span>
+        </label>
+        <p class="hint">The model downloads once, then your browser caches it for next time. <span id="device-note"></span></p>
+      </section>
+
+      <section class="card yt" aria-labelledby="yt-title">
+        <h2 id="yt-title" class="h3">Got a YouTube link?</h2>
+        <p>A static page can't fetch YouTube videos (browsers block it), and we don't send links through anyone else's server. Download it first, then drop the file here. With <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a>:</p>
+        <pre class="cmd"><code>yt-dlp -x --audio-format mp3 &lt;url&gt;</code></pre>
+        <form class="yt-form" id="yt-form" novalidate>
+          <label for="yt-url" class="vh">Paste a video link</label>
+          <input type="url" id="yt-url" placeholder="Paste a link to get the exact command" autocomplete="off" inputmode="url">
+          <button type="submit" class="btn">Show command</button>
+        </form>
+        <div id="yt-out" class="yt-out" aria-live="polite"></div>
+      </section>
+
+    </main>
+
+    <footer class="page-foot">
+      Whisper via <a href="https://huggingface.co/docs/transformers.js">transformers.js</a>. Works best in recent Chrome, Edge or Firefox; very long files need lots of memory.
+    </footer>
+  </div>
+
+  <div class="drop-veil" id="veil" aria-hidden="true"><p>Drop to transcribe</p></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
